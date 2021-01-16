@@ -1,52 +1,67 @@
 import React from "react";
 import styled from "styled-components";
-import { useForm } from "./useForm";
+import { useFormik } from "formik";
 
-export default function Form(props) {
-  const [values, handleChange, handleSubmit] = useForm({
-    email: "",
-    password: "",
+const validate = (values) => {
+  const errors = {};
+
+  if (!values.email) {
+    errors.email = "Required";
+  } else if (!values.email.includes("@")) {
+    errors.email = "invalid email";
+  }
+  if (!values.password) {
+    errors.password = "Required";
+  } else if (values.password.length < 5) {
+    errors.password = "Password must be at least 5 characters long";
+  }
+
+  return errors;
+};
+
+export default function form() {
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validate,
+    onSubmit: (values) => {
+      console.log(JSON.stringify(values, null, 2));
+    },
   });
-  // const [emailError, setEmailErrore] = useState(null);
 
-  // validate = () => {
-  //   let emailError = "";
-
-  //   if (!email.includes("@")) {
-  //     emailError = "invalid email";
-  //   }
-
-  //   return true;
-  // };
-
-  console.log(values);
+  const { touched, errors } = formik;
   return (
     <Wrapper>
       <h1>Login</h1>
-      <FormWrapper>
-        {/* <div> */}
+
+      <form onSubmit={formik.handleSubmit}>
         <input
-          name="email"
+          type="email"
+          id="email"
           placeholder="Email"
-          value={values.email}
-          onChange={handleChange}
+          {...formik.getFieldProps("email")}
         />
-        {/* <div style={{ fontSize: 12, color: "red" }}>{emailError}</div>
-        </div> */}
+        {errors.email && touched.email ? (
+          <span style={{ fontSize: 15, color: "red" }}>{errors.email}</span>
+        ) : null}
         <input
           type="password"
-          name="password"
+          id="password"
           placeholder="password"
-          value={values.password}
-          onChange={handleChange}
+          {...formik.getFieldProps("password")}
         />
-        <button type="submit" onSubmit={handleSubmit}>
-          sign in
-        </button>
-      </FormWrapper>
+        {errors.password && touched.password ? (
+          <span style={{ fontSize: 15, color: "red" }}>{errors.password}</span>
+        ) : null}
+
+        <button type="submit">Sign Up</button>
+      </form>
     </Wrapper>
   );
 }
+
 const Wrapper = styled.div`
   position: relative;
   display: block;
@@ -58,31 +73,31 @@ const Wrapper = styled.div`
     right: 700px;
     top: 250px;
   }
-`;
 
-const FormWrapper = styled.div`
-  position: absolute;
-  right: 400px;
-  top: 300px;
-  input {
-    padding: 13px;
-    padding-bottom: 17px;
-    width: 600px;
-    display: block;
-    margin: 5px;
-    background-color: #f3f3f3;
-    border: 1px solid #f3f3f3;
-  }
+  form {
+    position: absolute;
+    right: 400px;
+    top: 300px;
+    input {
+      padding: 13px;
+      padding-bottom: 17px;
+      width: 600px;
+      display: block;
+      margin: 5px;
+      background-color: #f3f3f3;
+      border: 1px solid #f3f3f3;
+    }
 
-  button {
-    padding: 15px;
-    width: 630px;
-    display: block;
-    font-size: 15px;
-    font-weight: bold;
-    margin: 5px;
-    background: #134f5c;
-    color: #efefef;
-    font-family: "Comic Sans MS";
+    button {
+      padding: 15px;
+      width: 630px;
+      display: block;
+      font-size: 15px;
+      font-weight: bold;
+      margin: 5px;
+      background: #134f5c;
+      color: #efefef;
+      font-family: "Comic Sans MS";
+    }
   }
 `;
